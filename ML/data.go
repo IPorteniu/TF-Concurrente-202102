@@ -65,7 +65,7 @@ type Usuaria struct {
 
 type DataSet struct {
 	Usuarias []Usuaria `json:"usuarias"`
-	Data     [][]float64
+	Data     [][]interface{}
 	Labels   []string
 }
 
@@ -84,7 +84,7 @@ func (ds *DataSet) loadData() {
 			continue
 		}
 
-		temp := []float64{}
+		temp := make([]interface{}, 0)
 		// Convertimos los datos necesarios a floats para poder añadirlos
 		for j, value := range metodos[:] {
 
@@ -146,5 +146,8 @@ func (ds *DataSet) loadData() {
 func main() {
 	ds := DataSet{}
 	ds.loadData()
-	fmt.Print(ds.Labels)
+	fmt.Println(len(ds.Data))
+	fmt.Println(len(ds.Data[0]))
+	forest := TrainForest(ds.Data, ds.Labels, len(ds.Data)/10, len(ds.Data[0]), 5)
+	fmt.Println(forest)
 }
