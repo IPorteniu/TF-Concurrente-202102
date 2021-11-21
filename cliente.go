@@ -22,7 +22,10 @@ func cargardata() {
 
 func main() {
 	cargardata()
-	con, _ := net.Dial("tcp", "localhost:9095")
+	con, err := net.Dial("tcp", "localhost:9090")
+	if err != nil {
+		fmt.Println("Error al conectar", err)
+	}
 	defer con.Close()
 	fmt.Fprintln(con, listaUsuaria)
 }

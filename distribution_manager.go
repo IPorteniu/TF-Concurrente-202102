@@ -9,11 +9,18 @@ import (
 
 var localhost string
 
-func sender(ip string, puerto string) {
-	for {
-		// send
+func sender(ip string, puerto string, data string) {
+	ln, err := net.Listen("tcp", ip+":"+puerto)
+	if err != nil {
+		log.Fatal(err)
 	}
-
+	defer ln.Close()
+	con, err := net.Dial("tcp", ip+":"+puerto)
+	if err != nil {
+		fmt.Println("Error al conectar", err)
+	}
+	defer con.Close()
+	fmt.Fprintln(con, data)
 }
 
 func receiver(ip string, puerto string) {
@@ -30,18 +37,26 @@ func receiver(ip string, puerto string) {
 		if err != nil {
 			log.Fatal(err)
 		}
-		go connectionHandler(con)
+		go senderConnectionHandler(con)
 	}
 
 }
 
-func distributionManager(port string, con net.Conn) {
+func distributionManager(port string, con net.Conn, data string) {
 	// Leemos lo que llega de la conexión con los nodos
 	// Si la comunicación es por el puerto 9090, entonces se envia a nodo 1 o nodo 2 dependiendo si está ocupado o no
-	// Si la comunicación es por los puertos 9095 o 9096, entonces se envia al backend
+	if port == "9090" {
+		// Enviar a nodo disponible
+		sender(localhost, "9095", data)
+		// colocar criterios de distribución
+		sender(localhost, "9096", data)
+	} else if port == "9095" || port == "9096" { // Si la comunicación es por los puertos 9095 o 9096, entonces se envia al backend
+		// Enviar a backend
+		sender(localhost, "9090", data)
+	}
 }
 
-func connectionHandler(con net.Conn) {
+func senderConnectionHandler(con net.Conn) {
 	defer con.Close()
 	// Leemos lo que llega de la conexión con los nodos
 	bufferI := bufio.NewReader(con)
@@ -51,14 +66,14 @@ func connectionHandler(con net.Conn) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	go distributionManager(port, con)
+	go distributionManager(port, con, data)
 	fmt.Println(port)
 	fmt.Printf(data)
 }
 
 func main() {
 	//configuracion
-
+	localhost = "localhost"
 	// Escucha en el backend
 	go receiver(localhost, "9090")
 	// Escucha en nodo 1
