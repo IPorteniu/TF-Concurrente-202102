@@ -9,6 +9,9 @@ import (
 
 var localhost string
 
+var AZ1 bool = true
+var AZ2 bool = true
+
 func sender(ip string, puerto string, data string) {
 	ln, err := net.Listen("tcp", ip+":"+puerto)
 	if err != nil {
@@ -33,7 +36,7 @@ func receiver(ip string, puerto string) {
 
 	for {
 		con, err := ln.Accept()
-		fmt.Println("Connection accepted", con.LocalAddr())
+		fmt.Println("Connection accepted", con.RemoteAddr())
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -47,12 +50,14 @@ func distributionManager(port string, con net.Conn, data string) {
 	// Si la comunicación es por el puerto 9090, entonces se envia a nodo 1 o nodo 2 dependiendo si está ocupado o no
 	if port == "9090" {
 		// Enviar a nodo disponible
-		sender(localhost, "9095", data)
+		fmt.Fprintln(con, "prueba completada")
+		fmt.Println("Se distribuye")
+		//sender(localhost, "9095", data)
 		// colocar criterios de distribución
-		sender(localhost, "9096", data)
+		//sender(localhost, "9096", data)
 	} else if port == "9095" || port == "9096" { // Si la comunicación es por los puertos 9095 o 9096, entonces se envia al backend
 		// Enviar a backend
-		sender(localhost, "9090", data)
+		//sender(localhost, "9090", data)
 	}
 }
 
@@ -66,14 +71,15 @@ func senderConnectionHandler(con net.Conn) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	go distributionManager(port, con, data)
+	distributionManager(port, con, data) // borré la goroutine, sigue funcionando
+
 	fmt.Println(port)
 	fmt.Printf(data)
 }
 
 func main() {
 	//configuracion
-	localhost = "localhost"
+	localhost = "192.168.1.90"
 	// Escucha en el backend
 	go receiver(localhost, "9090")
 	// Escucha en nodo 1
