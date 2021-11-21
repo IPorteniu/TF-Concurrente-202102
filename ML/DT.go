@@ -210,3 +210,33 @@ func TrainTree(inputs [][]interface{}, labels []string, samples, features int) *
 
 	return tree
 }
+
+func predicate(node *TreeNode, input []interface{}) map[string]int {
+	if node.Labels != nil { //leaf node
+		return node.Labels
+	}
+
+	c := node.ColumnNo
+	value := input[c]
+
+	switch value.(type) {
+	case float64:
+		if value.(float64) <= node.Value.(float64) && node.Left != nil {
+			return predicate(node.Left, input)
+		} else if node.Right != nil {
+			return predicate(node.Right, input)
+		}
+	case string:
+		if value == node.Value && node.Left != nil {
+			return predicate(node.Left, input)
+		} else if node.Right != nil {
+			return predicate(node.Right, input)
+		}
+	}
+
+	return nil
+}
+
+func PredicateTree(tree *Tree, input []interface{}) map[string]int {
+	return predicate(tree.Root, input)
+}
