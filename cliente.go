@@ -22,7 +22,7 @@ func cargardata() {
 
 func main() {
 	cargardata()
-	con, _ := net.Dial("tcp", "localhost:9090")
+	con, _ := net.Dial("tcp", "localhost:9095")
 	defer con.Close()
 	fmt.Fprintln(con, listaUsuaria)
 }
