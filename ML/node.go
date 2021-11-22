@@ -9,6 +9,22 @@ import (
 	"strconv"
 )
 
+type Usuaria struct {
+	ID        int     `json:"id"`
+	Nombre    string  `json:"nombre"`
+	DNI       int     `json:"dni"`
+	Edad      float64 `json:"edad"`
+	Tipo      float64 `json:"tipo"`
+	Actividad float64 `json:"actividad"`
+	Insumo    float64 `json:"insumo"`
+	Metodo    string  `json:"metodo"`
+}
+
+type DataSet struct {
+	Data   [][]interface{}
+	Labels []string
+}
+
 func readDataSet() [][]string {
 	// Obtener el dataset desde github
 	metodoMatrix := [][]string{}
@@ -46,33 +62,11 @@ func readDataSet() [][]string {
 	return metodoMatrix
 }
 
-type Resultado struct {
-	Prediccion string `json:"prediccion"`
-}
-
-type Respuesta struct {
-	Detalles   string      `json:"detalles"`
-	Resultados []Resultado `json:"resultados"`
-}
-
-type Usuaria struct {
-	Edad      float64 `json:"edad"`
-	Tipo      float64 `json:"tipo"`
-	Actividad float64 `json:"actividad"`
-	Insumo    float64 `json:"insumo"`
-	Metodo    string  `json:"metodo"`
-}
-
-type DataSet struct {
-	Usuarias []Usuaria `json:"usuarias"`
-	Data     [][]interface{}
-	Labels   []string
-}
-
-func (ds *DataSet) loadData() {
+func loadData() DataSet {
 
 	// Cargar el DataSet desde su CSV
 	data := readDataSet()
+	ds := DataSet{}
 
 	// Inicializar la usuaria Struct para llenarlo con datos
 	usuaria := Usuaria{}
@@ -138,31 +132,54 @@ func (ds *DataSet) loadData() {
 			// Añadir los datos al DataSet struct ahora convertidos
 			ds.Data = append(ds.Data, temp)
 			ds.Labels = append(ds.Labels, metodos[8])
-			ds.Usuarias = append(ds.Usuarias, usuaria)
 		}
 	}
+	return ds
+}
+
+func extractFeatures(u []Usuaria) [][]interface{} {
+
+	features := [][]interface{}{}
+	for i := range u {
+
+		featureData := []interface{}{u[i].Edad, u[i].Tipo, u[i].Actividad, u[i].Insumo}
+		features = append(features, featureData)
+	}
+
+	return features
 }
 
 func main() {
-	ds := DataSet{}
-	ds.loadData()
+	// ENTRENAMIENTO DATASET
+	ds := loadData()
 	fmt.Println(len(ds.Data))
-	fmt.Println(len(ds.Data[0]))
-	forest := TrainForest(ds.Data, ds.Labels, len(ds.Data)/10, len(ds.Data[0]), 5)
-	fmt.Println(forest)
-	iris1 := Usuaria{Edad: 5., Tipo: 3.5, Actividad: 1.4, Insumo: 0.2} //Setosa
-	iris2 := Usuaria{Edad: 7, Tipo: 3.2, Actividad: 4.7, Insumo: 1.4}  //Versicolor
-	iris3 := Usuaria{Edad: 6.3, Tipo: 3.3, Actividad: 6, Insumo: 2.5}  // Virginica
-	irisesJSON := []Usuaria{iris1, iris2, iris3}
-	irisX := [][]interface{}{}
-	for i, _ := range irisesJSON {
-		irisI := []interface{}{irisesJSON[i].Edad, irisesJSON[i].Tipo, irisesJSON[i].Actividad, irisesJSON[i].Insumo}
-		irisX = append(irisX, irisI)
-	}
-	var output string
-	for i := 0; i < len(irisX); i++ {
-		output = forest.Predicate(irisX[i])
-		fmt.Println("Se predijo de output: ", output, irisX[i])
 
+	forest := TrainForest(ds.Data, ds.Labels, len(ds.Data)/10, len(ds.Data[0]), 5)
+
+	// DATOS DE USUARIA
+	usuaria1 := Usuaria{ID: 20, Edad: 5., Tipo: 3.5, Actividad: 1.4, Insumo: 0.2} //Setosa
+	usuaria2 := Usuaria{ID: 21, Edad: 7, Tipo: 3.2, Actividad: 4.7, Insumo: 1.4}  //Versicolor
+	usuaria3 := Usuaria{ID: 22, Edad: 6.3, Tipo: 3.3, Actividad: 6, Insumo: 2.5}  // Virginica
+	usuariasJSON := []Usuaria{usuaria1, usuaria2, usuaria3}
+	usuariaX := [][]interface{}{}
+	for i, _ := range usuariasJSON {
+		usuariaI := []interface{}{usuariasJSON[i].Edad, usuariasJSON[i].Tipo, usuariasJSON[i].Actividad, usuariasJSON[i].Insumo}
+		usuariaX = append(usuariaX, usuariaI)
 	}
+
+	fmt.Println("USUARIAS")
+	fmt.Println(usuariasJSON)
+	fmt.Println("EXTRACTING FEATS")
+	features := extractFeatures(usuariasJSON)
+	fmt.Println(features)
+
+	// OUTPUT
+
+	fmt.Println("USUARIAS CON PREDICCION")
+	var output string
+	for i := 0; i < len(features); i++ {
+		output = forest.Predicate(features[i])
+		usuariasJSON[i].Metodo = output
+	}
+	fmt.Println(usuariasJSON)
 }
