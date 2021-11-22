@@ -1,5 +1,5 @@
 <div class="div-main">
-  <a href="https://github.com/Shiohne/GO-TA2" target="_blank">
+  <a href="https://github.com/IPorteniu/TF-Concurrente-202102" target="_blank">
     <button mat-raised-button color="primary">VAMOS A MI REPOSITORIO!</button>
   </a>
   <h1>Ingresar datos</h1>
@@ -10,7 +10,7 @@
       <input matInput formControlName=edad>
     </mat-form-field>
     <mat-form-field appearance="fill">
-      <mat-label>Tipo (0 = Nueva, 1 = Continuadora)</mat-label>
+      <mat-label>Tipo</mat-label>
       <input matInput formControlName=tipo>
     </mat-form-field>
 
@@ -38,7 +38,7 @@
   </ng-container>
 
   <ng-container matColumnDef="tipo">
-    <th mat-header-cell *matHeaderCellDef> Tipo (0 = Nueva, 1 = Continuadora) </th>
+    <th mat-header-cell *matHeaderCellDef> Tipo </th>
     <td mat-cell *matCellDef="let element"> {{element.tipo}} </td>
   </ng-container>
 
@@ -62,12 +62,12 @@
   <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
   <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
 </table>
+<!-- 
+<button mat-raised-button color="primary" (click)="knnPrediction()">SOLICITAR METODO</button> -->
 
-<button mat-raised-button color="primary" (click)="knnPrediction()">SOLICITAR METODO</button>
-
-<h1>DataSet</h1>
+<!-- <h1>DataSet</h1>
 </div>
 
-<mat-divider></mat-divider>
-<app-data-set></app-data-set>
+<mat-divider></mat-divider> -->
+<!-- <app-data-set></app-data-set> -->
 

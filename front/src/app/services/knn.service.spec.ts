@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 
-import { KnnService } from './knn.service';
+import { KnnService } from './knn;
 
 describe('KnnService', () => {
   let service: KnnService;
