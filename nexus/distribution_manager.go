@@ -6,6 +6,7 @@ import (
 	"log"
 	"net"
 	"strings"
+	"time"
 )
 
 var localhost string
@@ -36,6 +37,7 @@ func distributionManager(port string, con net.Conn, data string, ch1 chan string
 			AZ1 = false
 			fmt.Println("Se distribuye")
 			go sender(localhost, "9095", data, ch1, con) // una vez terminado se debe enviar esta respuesta al backend
+			time.Sleep(time.Second * 2)
 			AZ1 = true
 
 		} else if AZ2 {
