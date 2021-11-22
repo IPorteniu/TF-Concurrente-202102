@@ -11,6 +11,7 @@ import (
 	"net"
 	"net/http"
 	"strconv"
+	"strings"
 )
 
 var localhost string
@@ -196,7 +197,7 @@ func agregarUsuaria(res http.ResponseWriter, req *http.Request) {
 }
 
 func handle(newUsuaria Usuaria) {
-	con, _ := net.Dial("tcp", "201.230.178.131:9090")
+	con, _ := net.Dial("tcp", myIp()+":9090")
 	defer con.Close()
 	// Codificar JSON
 	bytesMsg, err := json.Marshal(newUsuaria)
@@ -226,6 +227,37 @@ func receiver(ip string, puerto string) {
 	fmt.Println(mensaje)
 }
 
+func myIp() string {
+	ifaces, err := net.Interfaces()
+	// Manejador err
+
+	if err != nil {
+		log.Print(fmt.Errorf("localAddres: %v \n", err.Error()))
+		return "127.0.0.1"
+	}
+
+	for _, iface := range ifaces {
+		if strings.HasPrefix(iface.Name, "Ethernet") {
+			addrs, err := iface.Addrs()
+			// Manejador err
+			if err != nil {
+				log.Print(fmt.Errorf("localAddres: %v \n", err.Error()))
+				return "127.0.0.1"
+			}
+
+			for _, addr := range addrs {
+				switch d := addr.(type) {
+				case *net.IPNet:
+					if strings.HasPrefix(d.IP.String(), "192") {
+						return d.IP.String()
+					}
+				}
+			}
+		}
+	}
+	return "127.0.0.1"
+}
+
 func connectionHandler(con net.Conn) {
 	defer con.Close()
 	// Leemos lo que llega de la conexión con los nodos
@@ -241,7 +273,7 @@ func connectionHandler(con net.Conn) {
 }
 func main() {
 	usuariaData.loadData()
-	localhost = "localhost"
+	localhost = myIp()
 	remotehost = "localhost"
 	go receiver(localhost, "9001")
 	Routes()
