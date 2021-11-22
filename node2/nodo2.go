@@ -32,7 +32,7 @@ type DataSet struct {
 func readDataSet() [][]string {
 	// Obtener el dataset desde github
 	metodoMatrix := [][]string{}
-	url := "https://github.com/IPorteniu/TF-Concurrente-202102/raw/main/Data/DAT%20PlaniFamiliar_01_Metodo.csv"
+	url := "https://github.com/IPorteniu/TF-Concurrente-202102/raw/main/data/data.csv"
 	dataset, err := http.Get(url)
 	if err != nil {
 		panic(err)

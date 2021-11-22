@@ -11,7 +11,6 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
-	"github.com/IPorteniu/TF-Concurrente-202102/tree/main/ML"
 )
 
 type Usuaria struct {
@@ -256,7 +255,7 @@ func usuariaHandler(con net.Conn, forest *Forest) {
 }
 
 func main() {
-	ML.forest := trainML()
+	forest := trainML()
 	go usuariaReceiver(forest)
 	fmt.Scanf("Enter")
 }
