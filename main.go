@@ -20,7 +20,16 @@ type Usuaria struct {
 	Dni    int
 }
 
+type respuestaUsuaria struct {
+	ID            string
+	Recomendacion string
+	Nombre        string
+	Edad          string
+	TiempoT       string
+}
+
 var listaUsuaria []Usuaria
+var listaRespuestas []respuestaUsuaria
 
 func loadData() {
 	listaUsuaria = []Usuaria{
@@ -30,7 +39,6 @@ func loadData() {
 }
 
 func Routes() {
-
 	mux := http.NewServeMux()
 	mux.HandleFunc("/api/dataset", MuestraDataSet)
 	mux.HandleFunc("/api/agregar", agregarUsuaria)
@@ -40,8 +48,27 @@ func Routes() {
 func MuestraDataSet(res http.ResponseWriter, req *http.Request) {
 	log.Println("llamada al endpoint /dataset")
 	res.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(res).Encode(listaUsuaria)
+	json.NewEncoder(res).Encode(listaUsuaria) // -rmv-
+	var newRespuesta respuestaUsuaria
+	if req.Method == "GET" {
+		log.Println("Ingreso al metodo obtener datos")
+		cuerpoMsg, err := ioutil.ReadAll(req.Body)
+		if err != nil {
+			http.Error(res, "Error interno al leer el body", http.StatusInternalServerError)
+		}
+		fmt.Print("imprimir respuestaJSON")
+		json.Unmarshal(cuerpoMsg, &newRespuesta)
+		//newRespuesta.ID = respuestaUsuaria.ID
+		//newRespuesta.Recomendacion = respuestaUsuaria.Recomendacion
+		//newRespuesta.Nombre = respuestaUsuaria.Nombre
+		//newRespuesta.Edad = respuestaUsuaria.Edad
+		//newRespuesta.TiempoT = respuestaUsuaria.TiempoT
+		listaRespuestas = append(listaRespuestas, newRespuesta)
+		fmt.Println(listaRespuestas)
+	}
+
 }
+
 func agregarUsuaria(res http.ResponseWriter, req *http.Request) {
 	var newUsuaria Usuaria
 	if req.Method == "POST" {
@@ -62,6 +89,7 @@ func agregarUsuaria(res http.ResponseWriter, req *http.Request) {
 		res.WriteHeader(http.StatusOK)
 	}
 }
+
 func handle(newUsuaria Usuaria) {
 	con, _ := net.Dial("tcp", remotehost+":9090")
 	defer con.Close()
@@ -87,7 +115,6 @@ func receiver(ip string, puerto string) {
 		}
 		go connectionHandler(con)
 	}
-
 }
 
 func connectionHandler(con net.Conn) {
@@ -106,8 +133,7 @@ func connectionHandler(con net.Conn) {
 func main() {
 	localhost = "192.168.0.90"
 	remotehost = "201.230.178.131"
-	go receiver(localhost, "9090")
+	go receiver(localhost, "4200")
 	loadData()
 	Routes()
-
 }
