@@ -1,4 +1,4 @@
-package ML
+package main
 
 import (
 	"fmt"

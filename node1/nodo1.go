@@ -11,6 +11,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"github.com/IPorteniu/TF-Concurrente-202102/tree/main/ML"
 )
 
 type Usuaria struct {
@@ -32,7 +33,7 @@ type DataSet struct {
 func readDataSet() [][]string {
 	// Obtener el dataset desde github
 	metodoMatrix := [][]string{}
-	url := "https://github.com/IPorteniu/TF-Concurrente-202102/raw/main/Data/DAT%20PlaniFamiliar_01_Metodo.csv"
+	url := "https://github.com/IPorteniu/TF-Concurrente-202102/raw/main/data/data.csv"
 	dataset, err := http.Get(url)
 	if err != nil {
 		panic(err)
@@ -255,7 +256,7 @@ func usuariaHandler(con net.Conn, forest *Forest) {
 }
 
 func main() {
-	forest := trainML()
+	ML.forest := trainML()
 	go usuariaReceiver(forest)
 	fmt.Scanf("Enter")
 }
