@@ -65,7 +65,6 @@ func MuestraDataSet(res http.ResponseWriter, req *http.Request) {
 		//newRespuesta.Edad = respuestaUsuaria.Edad
 		//newRespuesta.TiempoT = respuestaUsuaria.TiempoT
 		listaRespuestas = append(listaRespuestas, newRespuesta)
-		fmt.Println(listaRespuestas)
 	}
 
 }
@@ -82,22 +81,26 @@ func agregarUsuaria(res http.ResponseWriter, req *http.Request) {
 		json.Unmarshal(cuerpoMsg, &newUsuaria)
 		newUsuaria.ID = len(listaUsuaria) + 1
 		listaUsuaria = append(listaUsuaria, newUsuaria)
-		fmt.Print(listaUsuaria)
+		fmt.Print(newUsuaria)
 		go handle(newUsuaria)
-		fmt.Print("salio")
+		fmt.Printf("%T", newUsuaria)
 		json.NewEncoder(res).Encode(newUsuaria)
 		res.Header().Set("Content-Type", "application/json")
-		res.WriteHeader(http.StatusOK)
 	}
 }
 
 func handle(newUsuaria Usuaria) {
-	con, _ := net.Dial("tcp", "localhost:9000")
+	con, _ := net.Dial("tcp", "201.230.178.131:9090")
 	defer con.Close()
-	fmt.Fprintln(con, newUsuaria)
-	//r := bufio.NewReader(con)
-	//resp, _ := r.ReadString('\n')
-	//fmt.Printf("%s", resp)
+	// Codificar JSON
+	bytesMsg, err := json.Marshal(newUsuaria)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Fprintln(con, string(bytesMsg))
+	r := bufio.NewReader(con)
+	resp, _ := r.ReadString('\n')
+	fmt.Printf(resp)
 }
 
 func receiver(ip string, puerto string) {
