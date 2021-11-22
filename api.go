@@ -178,6 +178,7 @@ func MuestraDataSet(res http.ResponseWriter, req *http.Request) {
 
 func agregarUsuaria(res http.ResponseWriter, req *http.Request) {
 	var newUsuaria Usuaria
+	ch1 := make(chan string)
 	if req.Method == "POST" {
 		log.Println("Ingreso al metodo agregar")
 		cuerpoMsg, err := ioutil.ReadAll(req.Body)
@@ -189,14 +190,14 @@ func agregarUsuaria(res http.ResponseWriter, req *http.Request) {
 		newUsuaria.ID = len(listaUsuaria) + 1
 		listaUsuaria = append(listaUsuaria, newUsuaria)
 		fmt.Print(newUsuaria)
-		go handle(newUsuaria)
+		go handle(newUsuaria, ch1)
 		fmt.Printf("%T", newUsuaria)
-		json.NewEncoder(res).Encode(newUsuaria)
+		json.NewEncoder(res).Encode(<-ch1)
 		res.Header().Set("Content-Type", "application/json")
 	}
 }
 
-func handle(newUsuaria Usuaria) {
+func handle(newUsuaria Usuaria, ch1 chan string) {
 	con, _ := net.Dial("tcp", myIp()+":9090")
 	defer con.Close()
 	// Codificar JSON
@@ -207,6 +208,7 @@ func handle(newUsuaria Usuaria) {
 	fmt.Fprintln(con, string(bytesMsg))
 	r := bufio.NewReader(con)
 	resp, _ := r.ReadString('\n')
+	ch1 <- resp
 	fmt.Printf(resp)
 }
 

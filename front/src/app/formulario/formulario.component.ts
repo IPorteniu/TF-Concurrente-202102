@@ -2,7 +2,7 @@ import {Component, OnInit} from '@angular/core';
 import {FormBuilder, FormControl, FormGroup, Validators} from "@angular/forms";
 import {MatTable, MatTableDataSource} from "@angular/material/table";
 import {Usuaria} from "../model/Usuaria";
-import {KnnService} from "../services/knn.service";
+import {KnnService} from "../services/Knn";
 import {MatDialog} from "@angular/material/dialog";
 import {DialogResponseComponent} from "../dialog-response/dialog-response.component";
 
@@ -15,7 +15,7 @@ import {DialogResponseComponent} from "../dialog-response/dialog-response.compon
 export class FormularioComponent implements OnInit {
 
   dataSource = new MatTableDataSource<Usuaria>();
-  datos: any[]= [];
+  datos: Usuaria[]= [];
   form!: FormGroup;
   prediccion: any;
 
@@ -29,7 +29,7 @@ export class FormularioComponent implements OnInit {
     this.datos = []
     this.form = new FormGroup({
       edad: new FormControl( '',[Validators.required, Validators.pattern(/^[1-9]\d{0,2}$/), Validators.max(80)]),
-      tipo: new FormControl('',[ Validators.required, Validators.pattern(/^[0-9]\d{0,1}$/), Validators.max(1)]),
+      tipo: new FormControl('',[ Validators.required, Validators.pattern(/^[0-9]\d{0,1}$/)]),
       actividad: new FormControl('',[Validators.required,Validators.pattern(/^[1-9]\d{0,10000}$/), Validators.max(2000)]),
       insumo: new FormControl('',[ Validators.required, Validators.pattern(/^[1-9]\d{0,100000}$/), Validators.max(10500)])
     })
@@ -41,17 +41,17 @@ export class FormularioComponent implements OnInit {
     this.form.value.insumo = parseFloat(this.form.value.insumo)
     this.form.value.actividad = parseFloat(this.form.value.actividad)
     if(this.form.valid){
-      this.datos.push(this.form.value)
+      this.datos = this.form.value
     }
-    this.dataSource.data = this.datos
     this.form.reset()
-    console.log(this.datos)
+    this.knnService.postKnn(this.datos).subscribe((response: any) => {
+      this.prediccion = response;
+      this.dialog.open(DialogResponseComponent, {data: {respuesta: response}})
+      console.log(response)
+      })
   }
   knnPrediction() {
-    this.knnService.postKnn(this.datos).subscribe((response: any) => {
-    this.prediccion = response;
-    this.dialog.open(DialogResponseComponent, {data: {respuesta: response}})
-    })
+   
   }
   Remove(element: any) {
     this.datos.forEach(((value, index) => {

@@ -8,6 +8,6 @@ export class KnnService {
   constructor(private http: HttpClient) { }
 
   postKnn(datos: any) {
-    return this.http.post(`/api/agregar`, datos);
+    return this.http.post(`http://localhost:9080/api/agregar`, datos);
   }
 }

@@ -156,7 +156,7 @@ func trainML() *Forest {
 	ds := loadData()
 	fmt.Println(len(ds.Data))
 
-	forest := TrainForest(ds.Data, ds.Labels, len(ds.Data)/10, len(ds.Data[0]), 50)
+	forest := TrainForest(ds.Data, ds.Labels, len(ds.Data)/10, len(ds.Data[0]), 5)
 
 	return forest
 
