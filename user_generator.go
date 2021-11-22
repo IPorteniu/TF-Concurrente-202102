@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -26,7 +27,7 @@ func main() {
 
 	usuaria1 := Usuaria{ID: 20, Edad: 5, Tipo: 3.5, Actividad: 1.4, Insumo: 0.2}
 	for {
-		time.Sleep(5 * time.Second)
+		time.Sleep(2 * time.Second)
 		send(usuaria1)
 	}
 }
@@ -63,7 +64,7 @@ func myIp() string {
 }
 func send(user Usuaria) {
 	//Nodo a cual mandar la usuaria
-	conn, _ := net.Dial("tcp", myIp()+":9095")
+	conn, _ := net.Dial("tcp", myIp()+":9090")
 	defer conn.Close()
 	// Codificar JSON
 	bytesMsg, err := json.Marshal(user)
@@ -72,5 +73,7 @@ func send(user Usuaria) {
 	}
 	// Enviar mensaje serializado en string
 	fmt.Fprintln(conn, string(bytesMsg))
-
+	r := bufio.NewReader(conn)
+	resp, _ := r.ReadString('\n')
+	fmt.Println(resp)
 }
