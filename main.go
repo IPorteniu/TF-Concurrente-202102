@@ -50,12 +50,13 @@ func agregarUsuaria(res http.ResponseWriter, req *http.Request) {
 		if err != nil {
 			http.Error(res, "Error interno al leer el body", http.StatusInternalServerError)
 		}
-		fmt.Print("imprimir usuariasJSON")
+		//fmt.Print("imprimir usuariasJSON")
 		json.Unmarshal(cuerpoMsg, &newUsuaria)
 		newUsuaria.ID = len(listaUsuaria) + 1
 		listaUsuaria = append(listaUsuaria, newUsuaria)
-		fmt.Print(listaUsuaria)
-		handle(newUsuaria)
+		//fmt.Print(listaUsuaria)
+		//Se permite la creación de multiples clientes
+		go handle(newUsuaria)
 		fmt.Print("salio")
 		json.NewEncoder(res).Encode(newUsuaria)
 		res.Header().Set("Content-Type", "application/json")
