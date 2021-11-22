@@ -3,7 +3,9 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"log"
 	"net"
+	"strings"
 )
 
 type Usuaria struct {
@@ -21,9 +23,39 @@ func cargardata() {
 		{"Sebastiana", 20, 76546378}}
 }
 
+func myIp() string {
+	ifaces, err := net.Interfaces()
+	// Manejador err
+	if err != nil {
+		log.Print(fmt.Errorf("localAddres: %v \n", err.Error()))
+		return "127.0.0.1"
+	}
+
+	for _, iface := range ifaces {
+		if strings.HasPrefix(iface.Name, "Ethernet") {
+			addrs, err := iface.Addrs()
+			// Manejador err
+			if err != nil {
+				log.Print(fmt.Errorf("localAddres: %v \n", err.Error()))
+				return "127.0.0.1"
+			}
+
+			for _, addr := range addrs {
+				switch d := addr.(type) {
+				case *net.IPNet:
+					if strings.HasPrefix(d.IP.String(), "192") {
+						return d.IP.String()
+					}
+				}
+			}
+		}
+	}
+	return "127.0.0.1"
+}
+
 func main() {
 	cargardata()
-	con, err := net.Dial("tcp", "192.168.1.90:9090")
+	con, err := net.Dial("tcp", myIp()+":9090")
 	defer con.Close()
 	if err != nil {
 		fmt.Println("Error al conectar", err)

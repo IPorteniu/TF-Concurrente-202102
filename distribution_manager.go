@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net"
+	"strings"
 )
 
 var localhost string
@@ -92,9 +93,39 @@ func senderConnectionHandler(con net.Conn) {
 	go distributionManager(port, con, data)
 }
 
+func myIp() string {
+	ifaces, err := net.Interfaces()
+	// Manejador err
+	if err != nil {
+		log.Print(fmt.Errorf("localAddres: %v \n", err.Error()))
+		return "127.0.0.1"
+	}
+
+	for _, iface := range ifaces {
+		if strings.HasPrefix(iface.Name, "Ethernet") {
+			addrs, err := iface.Addrs()
+			// Manejador err
+			if err != nil {
+				log.Print(fmt.Errorf("localAddres: %v \n", err.Error()))
+				return "127.0.0.1"
+			}
+
+			for _, addr := range addrs {
+				switch d := addr.(type) {
+				case *net.IPNet:
+					if strings.HasPrefix(d.IP.String(), "192") {
+						return d.IP.String()
+					}
+				}
+			}
+		}
+	}
+	return "127.0.0.1"
+}
+
 func main() {
 	//configuracion
-	localhost = "192.168.1.90"
+	localhost := myIp()
 	// Escucha en el backend
 	go receiver(localhost, "9090")
 	// Escucha en nodo 1
